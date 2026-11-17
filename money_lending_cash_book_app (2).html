@@ -1,0 +1,1770 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uganda Lending & Cash Book (UGX)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#1E293B',
+                            900: '#0F172A',
+                            950: '#090D16',
+                        },
+                        gold: {
+                            400: '#FCD34D',
+                            500: '#F59E0B',
+                            600: '#D97706',
+                            700: '#B45309',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles & scrollbar tweaks */
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0F172A;
+            color: #F8FAFC;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Custom modal backdrop blur */
+        .glass-modal {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+        }
+        /* Smooth tab transition */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-navy-900 text-slate-100 min-h-screen pb-24 flex flex-col justify-between selection:bg-gold-500 selection:text-navy-900">
+
+    <!-- TOP HEADER -->
+    <header class="sticky top-0 z-30 bg-navy-950/90 backdrop-blur border-b border-navy-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-gold-600 to-gold-400 flex items-center justify-center text-navy-950 font-black text-xl shadow-lg shadow-gold-600/20">
+                UG
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight text-white">LendBook UGX</h1>
+                <p class="text-xs text-gold-400 font-medium">Money Lending & Cash Book</p>
+            </div>
+        </div>
+        <button onclick="openSettingsModal()" class="p-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-gold-400 transition-colors border border-navy-700/50" aria-label="Settings">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="w-full max-w-lg mx-auto p-4 flex-1">
+
+        <!-- DASHBOARD TAB -->
+        <section id="tab-dashboard" class="tab-content active space-y-5">
+            <!-- Header Welcome -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-white">Financial Summary</h2>
+                    <p class="text-xs text-slate-400" id="dash-date">Today: --</p>
+                </div>
+                <button onclick="openModal('modal-new-loan')" class="bg-gradient-to-r from-gold-500 to-gold-600 text-navy-950 font-bold px-4 py-2.5 rounded-xl text-sm shadow-md shadow-gold-500/20 active:scale-95 transition flex items-center space-x-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>New Loan</span>
+                </button>
+            </div>
+
+            <!-- Capital Main Card -->
+            <div class="bg-gradient-to-br from-navy-800 to-navy-950 p-5 rounded-2xl border border-gold-500/30 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-gold-500/10 rounded-full blur-xl pointer-events-none"></div>
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-xs uppercase tracking-wider text-gold-400 font-semibold">Capital in Hand (Cash Available)</p>
+                    <button onclick="openCapitalModal('ADD')" class="bg-gold-500/20 hover:bg-gold-500/30 text-gold-400 border border-gold-500/40 text-[11px] font-bold px-2.5 py-1 rounded-lg transition">
+                        + Add Capital
+                    </button>
+                </div>
+                <h3 class="text-3xl font-black text-white tracking-tight" id="dash-capital-hand">UGX 0</h3>
+                
+                <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-navy-700/60">
+                    <div>
+                        <p class="text-xs text-slate-400">Capital Deployed</p>
+                        <p class="text-sm font-bold text-slate-200" id="dash-capital-deployed">UGX 0</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Total Capital</p>
+                        <p class="text-sm font-bold text-slate-200" id="dash-capital-total">UGX 0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Grid -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-navy-800 p-4 rounded-xl border border-navy-700/60 shadow">
+                    <div class="flex items-center space-x-2 text-emerald-400 mb-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="text-xs font-semibold text-slate-300">Collected Today</span>
+                    </div>
+                    <p class="text-lg font-bold text-white" id="dash-collected-today">UGX 0</p>
+                </div>
+                <div class="bg-navy-800 p-4 rounded-xl border border-navy-700/60 shadow">
+                    <div class="flex items-center space-x-2 text-emerald-400 mb-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span class="text-xs font-semibold text-slate-300">This Week</span>
+                    </div>
+                    <p class="text-lg font-bold text-white" id="dash-collected-week">UGX 0</p>
+                </div>
+                <div class="bg-navy-800 p-4 rounded-xl border border-navy-700/60 shadow">
+                    <div class="flex items-center space-x-2 text-rose-400 mb-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="text-xs font-semibold text-slate-300">Total Overdue</span>
+                    </div>
+                    <p class="text-lg font-bold text-rose-300" id="dash-overdue-total">UGX 0</p>
+                </div>
+                <div class="bg-navy-800 p-4 rounded-xl border border-navy-700/60 shadow">
+                    <div class="flex items-center space-x-2 text-gold-400 mb-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        <span class="text-xs font-semibold text-slate-300">Interest & Fees</span>
+                    </div>
+                    <p class="text-lg font-bold text-gold-400" id="dash-earned-total">UGX 0</p>
+                </div>
+            </div>
+
+            <!-- Quick Action Bar -->
+            <div class="bg-navy-800/80 p-3.5 rounded-2xl border border-navy-700/80 flex items-center justify-around gap-2">
+                <button onclick="openCapitalModal('ADD')" class="flex flex-col items-center space-y-1 text-slate-300 hover:text-gold-400 transition">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    </div>
+                    <span class="text-[11px] font-medium">+ Add Capital</span>
+                </button>
+                <button onclick="openModal('modal-new-loan')" class="flex flex-col items-center space-y-1 text-slate-300 hover:text-gold-400 transition">
+                    <div class="w-10 h-10 rounded-xl bg-gold-500/15 text-gold-400 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                    </div>
+                    <span class="text-[11px] font-medium">New Loan</span>
+                </button>
+                <button onclick="openModal('modal-migrated-loan')" class="flex flex-col items-center space-y-1 text-slate-300 hover:text-gold-400 transition">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                    </div>
+                    <span class="text-[11px] font-medium">Migrate Loan</span>
+                </button>
+            </div>
+
+            <!-- Overdue Alert List Snippet -->
+            <div class="bg-navy-800 rounded-2xl p-4 border border-navy-700/70">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-sm text-slate-200 flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <span>Attention Required (Overdue)</span>
+                    </h3>
+                    <span id="dash-overdue-count" class="text-xs bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-semibold">0</span>
+                </div>
+                <div id="dash-overdue-list" class="space-y-2">
+                    <!-- Dynamic Items -->
+                </div>
+            </div>
+        </section>
+
+        <!-- CLIENTS & LOANS TAB -->
+        <section id="tab-clients" class="tab-content space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-white">Client Portfolio</h2>
+                    <p class="text-xs text-slate-400">Manage active loans and balances</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="openModal('modal-migrated-loan')" class="bg-navy-800 text-gold-400 border border-gold-500/30 text-xs font-bold px-3 py-2 rounded-xl">
+                        + Existing
+                    </button>
+                    <button onclick="openModal('modal-new-loan')" class="bg-gold-500 text-navy-950 text-xs font-bold px-3 py-2 rounded-xl">
+                        + New
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="flex gap-2">
+                <div class="relative flex-1">
+                    <input type="text" id="search-clients" placeholder="Search client name, phone, truck..." oninput="renderClients()" class="w-full bg-navy-800 text-slate-100 placeholder-slate-500 text-sm rounded-xl pl-9 pr-3 py-2.5 border border-navy-700 focus:outline-none focus:border-gold-500">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <select id="filter-loan-status" onchange="renderClients()" class="bg-navy-800 text-slate-200 text-xs rounded-xl px-2.5 py-2.5 border border-navy-700 focus:outline-none">
+                    <option value="ALL">All Status</option>
+                    <option value="ACTIVE" selected>Active</option>
+                    <option value="OVERDUE">Overdue</option>
+                    <option value="COMPLETED">Completed</option>
+                </select>
+            </div>
+
+            <!-- Loan Cards Container -->
+            <div id="clients-list" class="space-y-3">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+
+        <!-- PAYMENTS & SCHEDULE TAB -->
+        <section id="tab-payments" class="tab-content space-y-4">
+            <div>
+                <h2 class="text-xl font-bold text-white">Payment Operations</h2>
+                <p class="text-xs text-slate-400">Weekly schedules, due dates & collection tracker</p>
+            </div>
+
+            <!-- Filter Sub-tabs -->
+            <div class="flex bg-navy-800 p-1 rounded-xl border border-navy-700 text-xs font-semibold">
+                <button onclick="setPaymentSubTab('DUE')" id="subtab-due" class="flex-1 py-2 rounded-lg text-center bg-gold-500 text-navy-950 font-bold transition">Due This Week</button>
+                <button onclick="setPaymentSubTab('OVERDUE')" id="subtab-overdue" class="flex-1 py-2 rounded-lg text-center text-slate-400 transition">Overdue</button>
+                <button onclick="setPaymentSubTab('ALL')" id="subtab-all" class="flex-1 py-2 rounded-lg text-center text-slate-400 transition">All Active</button>
+            </div>
+
+            <!-- List Container -->
+            <div id="payments-schedule-list" class="space-y-3">
+                <!-- Dynamic Items -->
+            </div>
+        </section>
+
+        <!-- CASH BOOK TAB -->
+        <section id="tab-cashbook" class="tab-content space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-white">Daily Cash Book</h2>
+                    <p class="text-xs text-slate-400">Audit trail for Money IN and Money OUT</p>
+                </div>
+                <button onclick="openModal('modal-cash-entry')" class="bg-gold-500 text-navy-950 text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Add Entry</span>
+                </button>
+            </div>
+
+            <!-- Cash Summary Card -->
+            <div class="bg-navy-800 p-4 rounded-2xl border border-navy-700 space-y-3">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Filter Date:</span>
+                    <input type="date" id="cashbook-date-filter" onchange="renderCashBook()" class="bg-navy-900 border border-navy-700 rounded-lg text-slate-200 px-2 py-1 text-xs">
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center pt-1 border-t border-navy-700">
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase">Total IN</p>
+                        <p class="text-sm font-bold text-emerald-400" id="cb-summary-in">UGX 0</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase">Total OUT</p>
+                        <p class="text-sm font-bold text-rose-400" id="cb-summary-out">UGX 0</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase">Day Net</p>
+                        <p class="text-sm font-bold text-gold-400" id="cb-summary-net">UGX 0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Log -->
+            <div class="space-y-2" id="cashbook-log">
+                <!-- Dynamically loaded -->
+            </div>
+        </section>
+
+        <!-- CAPITAL MANAGEMENT TAB -->
+        <section id="tab-capital" class="tab-content space-y-4">
+            <div>
+                <h2 class="text-xl font-bold text-white">Capital Ledger</h2>
+                <p class="text-xs text-slate-400">Manage capital pool and owner equity injections</p>
+            </div>
+
+            <!-- Capital Breakdown Cards -->
+            <div class="bg-gradient-to-r from-navy-800 to-navy-950 p-4 rounded-2xl border border-gold-500/30 space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-semibold text-gold-400">AVAILABLE CASH IN HAND</span>
+                    <span class="text-xs text-slate-400">Liquid Pool</span>
+                </div>
+                <div class="text-2xl font-black text-white" id="cap-hand-val">UGX 0</div>
+                <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-navy-700/60">
+                    <div>
+                        <span class="text-slate-400 block">Deployed (Out on Loans)</span>
+                        <span class="font-bold text-slate-200" id="cap-deployed-val">UGX 0</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">Total Fund Value</span>
+                        <span class="font-bold text-gold-400" id="cap-total-val">UGX 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="openCapitalModal('ADD')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center space-x-2 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    <span>Add Capital</span>
+                </button>
+                <button onclick="openCapitalModal('REMOVE')" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center space-x-2 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                    <span>Withdraw Capital</span>
+                </button>
+            </div>
+
+            <!-- Capital Audit Trail -->
+            <div class="bg-navy-800 rounded-2xl p-4 border border-navy-700 space-y-3">
+                <h3 class="font-bold text-sm text-slate-200">Capital Movements Log</h3>
+                <div id="capital-history-list" class="space-y-2">
+                    <!-- Dynamic -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BOTTOM TAB NAVIGATION -->
+    <nav class="fixed bottom-0 left-0 right-0 z-30 bg-navy-950/95 backdrop-blur border-t border-navy-800 px-2 py-2">
+        <div class="max-w-lg mx-auto grid grid-cols-5 gap-1">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center py-1.5 text-gold-500 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span class="text-[10px] font-medium mt-1">Dash</span>
+            </button>
+            <button onclick="switchTab('clients')" id="nav-clients" class="nav-btn flex flex-col items-center py-1.5 text-slate-400 hover:text-slate-200 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span class="text-[10px] font-medium mt-1">Clients</span>
+            </button>
+            <button onclick="switchTab('payments')" id="nav-payments" class="nav-btn flex flex-col items-center py-1.5 text-slate-400 hover:text-slate-200 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="text-[10px] font-medium mt-1">Payments</span>
+            </button>
+            <button onclick="switchTab('cashbook')" id="nav-cashbook" class="nav-btn flex flex-col items-center py-1.5 text-slate-400 hover:text-slate-200 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                <span class="text-[10px] font-medium mt-1">Cash Book</span>
+            </button>
+            <button onclick="switchTab('capital')" id="nav-capital" class="nav-btn flex flex-col items-center py-1.5 text-slate-400 hover:text-slate-200 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m3 0h2M7 7h10M7 11h10M7 15h10"/></svg>
+                <span class="text-[10px] font-medium mt-1">Capital</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- TOAST / UNDO BANNER CONTAINER -->
+    <div id="toast-container" class="fixed bottom-20 left-4 right-4 z-50 pointer-events-none flex flex-col items-center space-y-2">
+        <!-- Dynamic Toast -->
+    </div>
+
+    <!-- MODAL: NEW LOAN -->
+    <div id="modal-new-loan" class="fixed inset-0 z-50 hidden glass-modal flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-navy-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl border border-navy-700 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-navy-700 pb-3">
+                <h3 class="text-lg font-bold text-white">Issue New Loan</h3>
+                <button onclick="closeModal('modal-new-loan')" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+            <form id="form-new-loan" onsubmit="handleNewLoan(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Client Full Name *</label>
+                    <input type="text" id="nl-name" required class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
+                        <input type="tel" id="nl-phone" placeholder="077..." class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Truck Number</label>
+                        <input type="text" id="nl-truck" placeholder="UBA 123X" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Loan Amount (UGX) *</label>
+                        <input type="number" id="nl-amount" min="1000" step="500" required oninput="calcNewLoanPreview()" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Processing Fee (UGX)</label>
+                        <input type="number" id="nl-fee" min="0" value="0" step="500" oninput="calcNewLoanPreview()" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Start Date *</label>
+                    <input type="date" id="nl-startdate" required onchange="calcNewLoanPreview()" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+
+                <!-- Auto Calculation Preview -->
+                <div class="bg-navy-950 p-3.5 rounded-xl border border-navy-700/70 text-xs space-y-1.5">
+                    <div class="flex justify-between text-slate-400">
+                        <span>Interest Rate & Term:</span>
+                        <span id="nl-preview-rate" class="font-semibold text-gold-400">5% (8 Weeks)</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400">
+                        <span>Total Repayment Amount:</span>
+                        <span id="nl-preview-total" class="font-bold text-white">UGX 0</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400">
+                        <span>Weekly Installment (8x):</span>
+                        <span id="nl-preview-weekly" class="font-bold text-emerald-400">UGX 0 / wk</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400">
+                        <span>Net Cash Given to Client:</span>
+                        <span id="nl-preview-disbursed" class="font-semibold text-slate-300">UGX 0</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold py-3 rounded-xl shadow-lg transition active:scale-[0.99]">
+                    Disburse Loan & Save Record
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: MIGRATED / EXISTING LOAN -->
+    <div id="modal-migrated-loan" class="fixed inset-0 z-50 hidden glass-modal flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-navy-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl border border-navy-700 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-navy-700 pb-3">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Migrate Existing Loan</h3>
+                    <p class="text-xs text-slate-400">Does not affect Cash Book or Capital In Hand</p>
+                </div>
+                <button onclick="closeModal('modal-migrated-loan')" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+            <form id="form-migrated-loan" onsubmit="handleMigratedLoan(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Client Full Name *</label>
+                    <input type="text" id="ml-name" required class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
+                        <input type="tel" id="ml-phone" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Truck Number</label>
+                        <input type="text" id="ml-truck" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Current Balance Owed (UGX) *</label>
+                    <input type="number" id="ml-balance" min="1000" step="500" required oninput="calcMigratedLoanPreview()" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Start Date *</label>
+                        <input type="date" id="ml-startdate" required class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">End Date *</label>
+                        <input type="date" id="ml-enddate" required class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Weekly Payment Amount (UGX) <span class="text-slate-500 font-normal">(Optional)</span></label>
+                    <input type="number" id="ml-weekly" placeholder="Auto-calculated if blank" step="500" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-[0.99]">
+                    Save Existing Loan Balance
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RECORD PAYMENT -->
+    <div id="modal-record-payment" class="fixed inset-0 z-50 hidden glass-modal flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-navy-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl border border-navy-700 p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-navy-700 pb-3">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Record Weekly Payment</h3>
+                    <p class="text-xs text-slate-400" id="pay-modal-client-name">Client: --</p>
+                </div>
+                <button onclick="closeModal('modal-record-payment')" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+            <form id="form-record-payment" onsubmit="handleRecordPayment(event)" class="space-y-3">
+                <input type="hidden" id="pay-loan-id">
+                <div class="bg-navy-950 p-3 rounded-xl border border-navy-700 text-xs flex justify-between">
+                    <div>
+                        <span class="text-slate-400 block">Current Balance:</span>
+                        <span id="pay-modal-balance" class="font-bold text-rose-400 text-sm">UGX 0</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-slate-400 block">Weekly Due Rate:</span>
+                        <span id="pay-modal-weekly" class="font-bold text-emerald-400 text-sm">UGX 0</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Payment Amount (UGX) *</label>
+                    <input type="number" id="pay-amount" required step="500" min="100" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Date Received *</label>
+                    <input type="date" id="pay-date" required class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Notes / Receipt Ref (Optional)</label>
+                    <input type="text" id="pay-note" placeholder="Cash, Mobile Money ref..." class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-bold py-3 rounded-xl shadow-lg transition active:scale-[0.99]">
+                    Confirm Payment & Post to Cash Book
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: LOAN DETAILS & REPAYMENT TRACKER -->
+    <div id="modal-loan-details" class="fixed inset-0 z-50 hidden glass-modal flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-navy-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl border border-navy-700 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start border-b border-navy-700 pb-3">
+                <div>
+                    <h3 class="text-lg font-bold text-white" id="det-client-name">--</h3>
+                    <p class="text-xs text-slate-400" id="det-client-sub">Phone: -- | Truck: --</p>
+                </div>
+                <button onclick="closeModal('modal-loan-details')" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-3 gap-2 bg-navy-950 p-3 rounded-xl border border-navy-700 text-center">
+                <div>
+                    <span class="text-[10px] text-slate-400 block">Total Target</span>
+                    <span id="det-total-target" class="text-xs font-bold text-white">UGX 0</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-slate-400 block">Total Paid</span>
+                    <span id="det-total-paid" class="text-xs font-bold text-emerald-400">UGX 0</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-slate-400 block">Balance Owed</span>
+                    <span id="det-balance" class="text-xs font-bold text-rose-400">UGX 0</span>
+                </div>
+            </div>
+
+            <!-- 8-Week Visual Progress Tracker -->
+            <div>
+                <h4 class="text-xs font-bold text-gold-400 uppercase tracking-wider mb-2">8-Week Cycle Schedule</h4>
+                <div id="det-schedule-grid" class="grid grid-cols-2 gap-2">
+                    <!-- Dynamic 8 cycle boxes -->
+                </div>
+            </div>
+
+            <!-- Payment History List -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Payment History Logs</h4>
+                <div id="det-payment-history" class="space-y-2 text-xs">
+                    <!-- Dynamic payments list -->
+                </div>
+            </div>
+
+            <div class="pt-2 flex gap-2">
+                <button id="det-pay-btn" class="flex-1 bg-emerald-500 text-navy-950 font-bold py-2.5 rounded-xl text-sm">
+                    + Record Payment
+                </button>
+                <button id="det-delete-btn" class="bg-rose-600/20 text-rose-300 border border-rose-500/30 px-4 py-2.5 rounded-xl text-sm font-semibold">
+                    Delete Loan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CAPITAL INJECTION/WITHDRAWAL -->
+    <div id="modal-capital-action" class="fixed inset-0 z-50 hidden glass-modal flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-navy-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl border border-navy-700 p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-navy-700 pb-3">
+                <h3 class="text-lg font-bold text-white" id="cap-modal-title">Capital Transaction</h3>
+                <button onclick="closeModal('modal-capital-action')" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+            <form id="form-capital-action" onsubmit="handleCapitalAction(event)" class="space-y-3">
+                <input type="hidden" id="cap-type" value="ADD">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Amount (UGX) *</label>
+                    <input type="number" id="cap-amount" required step="1000" min="1000" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Date *</label>
+                    <input type="date" id="cap-date" required class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Note / Source</label>
+                    <input type="text" id="cap-note" placeholder="Owner deposit, bank withdrawal..." class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+
+                <button type="submit" id="cap-submit-btn" class="w-full bg-gold-500 text-navy-950 font-bold py-3 rounded-xl shadow-lg transition">
+                    Save Capital Transaction
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: MANUAL CASH BOOK ENTRY -->
+    <div id="modal-cash-entry" class="fixed inset-0 z-50 hidden glass-modal flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-navy-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl border border-navy-700 p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-navy-700 pb-3">
+                <h3 class="text-lg font-bold text-white">Add Cash Book Entry</h3>
+                <button onclick="closeModal('modal-cash-entry')" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+            <form id="form-cash-entry" onsubmit="handleManualCashEntry(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Entry Type *</label>
+                    <select id="ce-type" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                        <option value="IN">Money IN (Other Income)</option>
+                        <option value="OUT">Money OUT (Expense/Other)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Amount (UGX) *</label>
+                    <input type="number" id="ce-amount" required step="500" min="500" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Category / Description *</label>
+                    <input type="text" id="ce-desc" placeholder="Fuel, Office rent, Miscellaneous..." required class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Date *</label>
+                    <input type="date" id="ce-date" required class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+
+                <button type="submit" class="w-full bg-gold-500 text-navy-950 font-bold py-3 rounded-xl shadow-lg transition">
+                    Save Entry to Cash Book
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: SETTINGS & BACKUP -->
+    <div id="modal-settings" class="fixed inset-0 z-50 hidden glass-modal flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-navy-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl border border-navy-700 p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-navy-700 pb-3">
+                <h3 class="text-lg font-bold text-white">App Settings & Data Backup</h3>
+                <button onclick="closeModal('modal-settings')" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            <!-- Global Rule Config -->
+            <form id="form-settings" onsubmit="handleSaveSettings(event)" class="space-y-3">
+                <h4 class="text-xs font-bold text-gold-400 uppercase tracking-wider">Default Loan Terms</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Flat Interest Rate (%)</label>
+                        <input type="number" id="set-rate" min="0" max="100" step="0.5" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2 text-sm text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Duration (Weeks)</label>
+                        <input type="number" id="set-weeks" min="1" max="52" class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2 text-sm text-white">
+                    </div>
+                </div>
+                <button type="submit" class="bg-navy-700 text-gold-400 border border-gold-500/30 text-xs font-bold px-4 py-2 rounded-xl w-full">
+                    Save Default Rules
+                </button>
+            </form>
+
+            <hr class="border-navy-700">
+
+            <!-- Data Backup & Import -->
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold text-gold-400 uppercase tracking-wider">JSON Data Export & Restore</h4>
+                <p class="text-xs text-slate-400">Safely backup all clients, cashbook logs and settings to a JSON file or restore from a previous file.</p>
+                
+                <div class="flex gap-2">
+                    <button onclick="exportJSONBackup()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <span>Export Backup</span>
+                    </button>
+                    <label class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-1 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        <span>Import Backup</span>
+                        <input type="file" id="import-file-input" accept=".json" onchange="importJSONBackup(event)" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <hr class="border-navy-700">
+
+            <!-- Reset Data Danger Zone -->
+            <div class="pt-1">
+                <button onclick="confirmResetAllData()" class="w-full bg-rose-600/10 text-rose-400 border border-rose-500/30 text-xs font-semibold py-2.5 rounded-xl hover:bg-rose-600 hover:text-white transition">
+                    Reset All Local Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GENERIC CONFIRMATION MODAL -->
+    <div id="modal-confirm" class="fixed inset-0 z-50 hidden glass-modal flex items-center justify-center p-4">
+        <div class="bg-navy-800 w-full max-w-sm rounded-2xl border border-navy-700 p-5 space-y-4 text-center">
+            <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-white" id="confirm-title">Are you sure?</h3>
+                <p class="text-xs text-slate-300 mt-1" id="confirm-msg">This action will be deleted.</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="closeModal('modal-confirm')" class="flex-1 bg-navy-700 text-slate-300 font-bold py-2.5 rounded-xl text-xs">
+                    Cancel
+                </button>
+                <button id="confirm-ok-btn" class="flex-1 bg-rose-600 text-white font-bold py-2.5 rounded-xl text-xs">
+                    Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        /**
+         * APP STATE & DATA STRUCTURES
+         */
+        const STORAGE_KEY = 'UGX_LENDING_CASHBOOK_DB_V1';
+
+        let appState = {
+            settings: {
+                interestRate: 5, // 5% flat
+                weeks: 8         // 8 weeks term
+            },
+            capitalLogs: [],     // { id, date, type: 'ADD'|'REMOVE', amount, note }
+            loans: [],           // { id, type:'NEW'|'MIGRATED', clientName, phone, truckNumber, amount, interestRate, totalRepayment, weeklyPayment, startDate, endDate, balance, completed, payments: [{id, date, amount, note}] }
+            cashBook: []         // { id, date, type: 'IN'|'OUT', category: 'LOAN_DISBURSED'|'REPAYMENT'|'PROCESSING_FEE'|'CAPITAL_ADD'|'CAPITAL_REMOVE'|'MANUAL', amount, note, refId }
+        };
+
+        let lastDeletedItem = null; // Holds item backup for 6 sec Undo
+        let undoTimer = null;
+        let activePaymentSubTab = 'DUE';
+
+        // Helper to format UGX currency
+        function formatUGX(amount) {
+            const val = Math.round(amount || 0);
+            return 'UGX ' + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Format ISO Date (YYYY-MM-DD) to friendly text
+        function formatDate(dateStr) {
+            if(!dateStr) return '';
+            const d = new Date(dateStr);
+            if(isNaN(d.getTime())) return dateStr;
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        // Get Today's Date String YYYY-MM-DD
+        function getTodayStr() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        // Add Days to date
+        function addDays(dateStr, days) {
+            const d = new Date(dateStr);
+            d.setDate(d.getDate() + days);
+            return d.toISOString().split('T')[0];
+        }
+
+        /**
+         * UI NAVIGATION & MODAL CONTROLS (Exposed Globally)
+         */
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-gold-500');
+                btn.classList.add('text-slate-400');
+            });
+
+            const activeTab = document.getElementById('tab-' + tabName);
+            if(activeTab) activeTab.classList.add('active');
+            
+            const activeNav = document.getElementById('nav-' + tabName);
+            if(activeNav) {
+                activeNav.classList.remove('text-slate-400');
+                activeNav.classList.add('text-gold-500');
+            }
+        }
+
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if(el) el.classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if(el) el.classList.add('hidden');
+        }
+
+        // Explicitly attach essential handlers to window object to prevent reference errors in inline onclicks
+        window.switchTab = switchTab;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+
+        /**
+         * INITIALIZATION & STORAGE
+         */
+        window.onload = function() {
+            loadData();
+            // Set default date inputs to today
+            const today = getTodayStr();
+            if(document.getElementById('nl-startdate')) document.getElementById('nl-startdate').value = today;
+            if(document.getElementById('ml-startdate')) document.getElementById('ml-startdate').value = today;
+            if(document.getElementById('ml-enddate')) document.getElementById('ml-enddate').value = addDays(today, 56);
+            if(document.getElementById('pay-date')) document.getElementById('pay-date').value = today;
+            if(document.getElementById('cap-date')) document.getElementById('cap-date').value = today;
+            if(document.getElementById('ce-date')) document.getElementById('ce-date').value = today;
+            if(document.getElementById('cashbook-date-filter')) document.getElementById('cashbook-date-filter').value = today;
+
+            if(document.getElementById('dash-date')) document.getElementById('dash-date').innerText = 'Today: ' + formatDate(today);
+
+            renderAll();
+
+            // Prompt user to add initial capital if total logs and loans are empty
+            if ((!appState.capitalLogs || appState.capitalLogs.length === 0) && (!appState.cashBook || appState.cashBook.length === 0)) {
+                setTimeout(() => {
+                    openCapitalModal('ADD');
+                }, 500);
+            }
+        };
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.error('Failed to save to localStorage', e);
+            }
+        }
+
+        function loadData() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if(raw) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    appState = { ...appState, ...parsed };
+                } catch(e) {
+                    console.error('Failed to parse localStorage', e);
+                }
+            }
+        }
+
+        /**
+         * CALCULATIONS & DERIVED METRICS
+         */
+        function calculateMetrics() {
+            let cashIn = 0;
+            let cashOut = 0;
+
+            (appState.cashBook || []).forEach(entry => {
+                if(entry.type === 'IN') cashIn += Number(entry.amount);
+                if(entry.type === 'OUT') cashOut += Number(entry.amount);
+            });
+
+            const capitalInHand = cashIn - cashOut;
+            let capitalDeployed = 0;
+            let overdueTotal = 0;
+
+            const today = getTodayStr();
+
+            (appState.loans || []).forEach(loan => {
+                if(!loan.completed && loan.balance > 0) {
+                    capitalDeployed += Number(loan.balance);
+
+                    if(loan.endDate && today > loan.endDate) {
+                        overdueTotal += Number(loan.balance);
+                    }
+                }
+            });
+
+            const totalCapital = capitalInHand + capitalDeployed;
+
+            let collectedToday = 0;
+            let collectedWeek = 0;
+
+            const now = new Date();
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0,0,0,0);
+
+            (appState.cashBook || []).forEach(entry => {
+                if(entry.category === 'REPAYMENT') {
+                    if(entry.date === today) {
+                        collectedToday += Number(entry.amount);
+                    }
+                    const entryDate = new Date(entry.date);
+                    if(entryDate >= startOfWeek) {
+                        collectedWeek += Number(entry.amount);
+                    }
+                }
+            });
+
+            let interestFeesEarned = 0;
+            (appState.loans || []).forEach(loan => {
+                if(loan.type === 'NEW') {
+                    const interest = loan.amount * (loan.interestRate / 100);
+                    const fee = loan.processingFee || 0;
+                    interestFeesEarned += (interest + fee);
+                }
+            });
+
+            return {
+                capitalInHand,
+                capitalDeployed,
+                totalCapital,
+                collectedToday,
+                collectedWeek,
+                overdueTotal,
+                interestFeesEarned
+            };
+        }
+
+        /**
+         * RENDER FUNCTIONS
+         */
+        function renderAll() {
+            const metrics = calculateMetrics();
+
+            document.getElementById('dash-capital-hand').innerText = formatUGX(metrics.capitalInHand);
+            document.getElementById('dash-capital-deployed').innerText = formatUGX(metrics.capitalDeployed);
+            document.getElementById('dash-capital-total').innerText = formatUGX(metrics.totalCapital);
+            document.getElementById('dash-collected-today').innerText = formatUGX(metrics.collectedToday);
+            document.getElementById('dash-collected-week').innerText = formatUGX(metrics.collectedWeek);
+            document.getElementById('dash-overdue-total').innerText = formatUGX(metrics.overdueTotal);
+            document.getElementById('dash-earned-total').innerText = formatUGX(metrics.interestFeesEarned);
+
+            renderDashboardOverdueList();
+            renderClients();
+            renderPaymentsSchedule();
+            renderCashBook();
+            renderCapital();
+
+            saveData();
+        }
+
+        function renderDashboardOverdueList() {
+            const container = document.getElementById('dash-overdue-list');
+            const countBadge = document.getElementById('dash-overdue-count');
+            const today = getTodayStr();
+
+            const overdueLoans = (appState.loans || []).filter(l => !l.completed && l.balance > 0 && l.endDate && today > l.endDate);
+            countBadge.innerText = overdueLoans.length;
+
+            if(overdueLoans.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 py-2 text-center">No overdue loans currently! 🎉</p>';
+                return;
+            }
+
+            container.innerHTML = overdueLoans.map(loan => `
+                <div onclick="openLoanDetails('${loan.id}')" class="bg-navy-900 p-3 rounded-xl border border-rose-500/30 flex justify-between items-center cursor-pointer hover:bg-navy-950 transition">
+                    <div>
+                        <p class="font-bold text-xs text-white">${escapeHtml(loan.clientName)}</p>
+                        <p class="text-[10px] text-slate-400">Truck: ${escapeHtml(loan.truckNumber || 'N/A')} | Due: ${formatDate(loan.endDate)}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-bold text-rose-400 block">${formatUGX(loan.balance)}</span>
+                        <span class="text-[9px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded">OVERDUE</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderClients() {
+            const container = document.getElementById('clients-list');
+            const search = (document.getElementById('search-clients').value || '').toLowerCase();
+            const statusFilter = document.getElementById('filter-loan-status').value;
+            const today = getTodayStr();
+
+            let filtered = (appState.loans || []).filter(loan => {
+                const matchesSearch = loan.clientName.toLowerCase().includes(search) ||
+                                      (loan.phone && loan.phone.includes(search)) ||
+                                      (loan.truckNumber && loan.truckNumber.toLowerCase().includes(search));
+
+                let matchesStatus = true;
+                if(statusFilter === 'COMPLETED') matchesStatus = loan.completed;
+                else if(statusFilter === 'ACTIVE') matchesStatus = !loan.completed;
+                else if(statusFilter === 'OVERDUE') matchesStatus = !loan.completed && loan.endDate && today > loan.endDate;
+
+                return matchesSearch && matchesStatus;
+            });
+
+            if(filtered.length === 0) {
+                container.innerHTML = '<div class="text-center py-10 text-slate-500 text-xs">No matching clients found.</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(loan => {
+                const isOverdue = !loan.completed && loan.endDate && today > loan.endDate;
+                const progressPct = loan.totalRepayment ? Math.min(100, Math.round(((loan.totalRepayment - loan.balance) / loan.totalRepayment) * 100)) : 0;
+
+                return `
+                <div class="bg-navy-800 rounded-2xl p-4 border ${isOverdue ? 'border-rose-500/40' : 'border-navy-700/80'} shadow-md space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="font-bold text-base text-white">${escapeHtml(loan.clientName)}</h3>
+                                ${loan.completed ? '<span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold">COMPLETED</span>' : ''}
+                                ${isOverdue ? '<span class="bg-rose-500/20 text-rose-300 text-[10px] px-2 py-0.5 rounded-full font-bold">OVERDUE</span>' : ''}
+                            </div>
+                            <p class="text-xs text-slate-400 mt-0.5">📞 ${escapeHtml(loan.phone || 'No Phone')} | 🚛 ${escapeHtml(loan.truckNumber || 'No Truck')}</p>
+                        </div>
+                        <div class="flex space-x-1.5">
+                            <button onclick="openLoanDetails('${loan.id}')" class="p-2 rounded-xl bg-navy-900 text-gold-400 border border-navy-700 hover:bg-navy-950" title="View details">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                            <button onclick="promptDeleteEntry('loan', '${loan.id}')" class="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-600 hover:text-white transition" title="Delete Loan">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 bg-navy-950 p-2.5 rounded-xl text-xs">
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Current Balance</span>
+                            <span class="font-bold text-rose-400 text-sm">${formatUGX(loan.balance)}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Weekly Installment</span>
+                            <span class="font-bold text-emerald-400 text-sm">${formatUGX(loan.weeklyPayment)}</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] text-slate-400">
+                            <span>Progress</span>
+                            <span>${progressPct}% Paid</span>
+                        </div>
+                        <div class="w-full h-2 bg-navy-950 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-gold-500 to-emerald-400 rounded-full" style="width: ${progressPct}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-1">
+                        <span class="text-[11px] text-slate-400">Term: ${formatDate(loan.startDate)} → ${formatDate(loan.endDate)}</span>
+                        ${!loan.completed ? `
+                            <button onclick="openRecordPaymentModal('${loan.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-navy-950 text-xs font-bold px-3 py-1.5 rounded-xl shadow">
+                                + Pay
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function setPaymentSubTab(tab) {
+            activePaymentSubTab = tab;
+            document.getElementById('subtab-due').className = `flex-1 py-2 rounded-lg text-center ${tab === 'DUE' ? 'bg-gold-500 text-navy-950 font-bold' : 'text-slate-400'}`;
+            document.getElementById('subtab-overdue').className = `flex-1 py-2 rounded-lg text-center ${tab === 'OVERDUE' ? 'bg-gold-500 text-navy-950 font-bold' : 'text-slate-400'}`;
+            document.getElementById('subtab-all').className = `flex-1 py-2 rounded-lg text-center ${tab === 'ALL' ? 'bg-gold-500 text-navy-950 font-bold' : 'text-slate-400'}`;
+            renderPaymentsSchedule();
+        }
+
+        function renderPaymentsSchedule() {
+            const container = document.getElementById('payments-schedule-list');
+            const today = getTodayStr();
+
+            let activeLoans = (appState.loans || []).filter(l => !l.completed && l.balance > 0);
+
+            if(activePaymentSubTab === 'OVERDUE') {
+                activeLoans = activeLoans.filter(l => l.endDate && today > l.endDate);
+            } else if(activePaymentSubTab === 'DUE') {
+                activeLoans = activeLoans.filter(l => {
+                    const isOverdue = l.endDate && today > l.endDate;
+                    return !isOverdue;
+                });
+            }
+
+            if(activeLoans.length === 0) {
+                container.innerHTML = '<div class="text-center py-10 text-slate-500 text-xs">No records found for this schedule filter.</div>';
+                return;
+            }
+
+            container.innerHTML = activeLoans.map(loan => {
+                const isOverdue = loan.endDate && today > loan.endDate;
+                return `
+                <div class="bg-navy-800 p-4 rounded-2xl border border-navy-700 space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-sm text-white">${escapeHtml(loan.clientName)}</h4>
+                            <p class="text-xs text-slate-400">Truck: ${escapeHtml(loan.truckNumber || 'N/A')} | Tel: ${escapeHtml(loan.phone || 'N/A')}</p>
+                        </div>
+                        <span class="text-xs font-bold ${isOverdue ? 'text-rose-400' : 'text-gold-400'} bg-navy-950 px-2.5 py-1 rounded-lg border border-navy-700">
+                            Due: ${formatUGX(loan.weeklyPayment)} / wk
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-xs bg-navy-950 p-2.5 rounded-xl">
+                        <div>
+                            <span class="text-slate-400 text-[10px] block">Balance Remaining</span>
+                            <span class="font-bold text-rose-400 text-xs">${formatUGX(loan.balance)}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 text-[10px] block">End Due Date</span>
+                            <span class="font-semibold text-slate-200 text-xs">${formatDate(loan.endDate)}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="openRecordPaymentModal('${loan.id}')" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-navy-950 font-bold py-2 rounded-xl text-xs shadow">
+                            Record Payment
+                        </button>
+                        <button onclick="openLoanDetails('${loan.id}')" class="bg-navy-900 text-slate-300 border border-navy-700 px-3 py-2 rounded-xl text-xs font-semibold">
+                            View Cycles
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderCashBook() {
+            const container = document.getElementById('cashbook-log');
+            const dateFilter = document.getElementById('cashbook-date-filter').value;
+
+            const entries = (appState.cashBook || []).slice().sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            let dayIn = 0;
+            let dayOut = 0;
+
+            entries.forEach(e => {
+                if(e.date === dateFilter) {
+                    if(e.type === 'IN') dayIn += Number(e.amount);
+                    if(e.type === 'OUT') dayOut += Number(e.amount);
+                }
+            });
+
+            document.getElementById('cb-summary-in').innerText = formatUGX(dayIn);
+            document.getElementById('cb-summary-out').innerText = formatUGX(dayOut);
+            document.getElementById('cb-summary-net').innerText = formatUGX(dayIn - dayOut);
+
+            if(entries.length === 0) {
+                container.innerHTML = '<div class="text-center py-10 text-slate-500 text-xs">No cash book transactions logged yet.</div>';
+                return;
+            }
+
+            container.innerHTML = entries.map(entry => {
+                const isIN = entry.type === 'IN';
+                return `
+                <div class="bg-navy-800 p-3 rounded-xl border border-navy-700 flex justify-between items-center text-xs">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg ${isIN ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'} flex items-center justify-center font-bold">
+                            ${isIN ? '+' : '-'}
+                        </div>
+                        <div>
+                            <p class="font-bold text-white">${escapeHtml(entry.category || 'Transaction')}</p>
+                            <p class="text-[10px] text-slate-400">${formatDate(entry.date)} ${entry.note ? '• ' + escapeHtml(entry.note) : ''}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold ${isIN ? 'text-emerald-400' : 'text-rose-400'} text-sm">
+                            ${isIN ? '+' : '-'}${formatUGX(entry.amount)}
+                        </span>
+                        <button onclick="promptDeleteEntry('cashbook', '${entry.id}')" class="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition" title="Delete cash book entry">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderCapital() {
+            const metrics = calculateMetrics();
+            document.getElementById('cap-hand-val').innerText = formatUGX(metrics.capitalInHand);
+            document.getElementById('cap-deployed-val').innerText = formatUGX(metrics.capitalDeployed);
+            document.getElementById('cap-total-val').innerText = formatUGX(metrics.totalCapital);
+
+            const container = document.getElementById('capital-history-list');
+            const logs = (appState.capitalLogs || []).slice().sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            if(logs.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">No capital additions or withdrawals recorded.</p>';
+                return;
+            }
+
+            container.innerHTML = logs.map(log => {
+                const isAdd = log.type === 'ADD';
+                return `
+                <div class="bg-navy-900 p-3 rounded-xl border border-navy-700/80 flex justify-between items-center text-xs">
+                    <div>
+                        <p class="font-bold text-slate-200">${isAdd ? 'Capital Added (+)' : 'Capital Withdrawn (-)'}</p>
+                        <p class="text-[10px] text-slate-400">${formatDate(log.date)} ${log.note ? '• ' + escapeHtml(log.note) : ''}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold ${isAdd ? 'text-emerald-400' : 'text-rose-400'} text-sm">${formatUGX(log.amount)}</span>
+                        <button onclick="promptDeleteEntry('capital', '${log.id}')" class="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition" title="Delete capital log">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * ACTION HANDLERS & FORMS (Exposed globally)
+         */
+
+        // NEW LOAN DISBURSEMENT
+        function handleNewLoan(e) {
+            e.preventDefault();
+            const name = document.getElementById('nl-name').value.trim();
+            const phone = document.getElementById('nl-phone').value.trim();
+            const truck = document.getElementById('nl-truck').value.trim();
+            const amount = parseFloat(document.getElementById('nl-amount').value);
+            const fee = parseFloat(document.getElementById('nl-fee').value || 0);
+            const startDate = document.getElementById('nl-startdate').value;
+
+            if(!name || isNaN(amount) || amount <= 0 || !startDate) return;
+
+            const rate = appState.settings.interestRate || 5;
+            const weeks = appState.settings.weeks || 8;
+
+            const interest = amount * (rate / 100);
+            const totalRepayment = amount + interest;
+            const weeklyPayment = totalRepayment / weeks;
+            const endDate = addDays(startDate, weeks * 7);
+
+            const loanId = 'LOAN_' + Date.now();
+
+            const newLoan = {
+                id: loanId,
+                type: 'NEW',
+                clientName: name,
+                phone: phone,
+                truckNumber: truck,
+                amount: amount,
+                processingFee: fee,
+                interestRate: rate,
+                weeks: weeks,
+                totalRepayment: totalRepayment,
+                weeklyPayment: weeklyPayment,
+                startDate: startDate,
+                endDate: endDate,
+                balance: totalRepayment,
+                completed: false,
+                payments: []
+            };
+
+            appState.loans.push(newLoan);
+
+            appState.cashBook.push({
+                id: 'CB_' + Date.now() + '_1',
+                date: startDate,
+                type: 'OUT',
+                category: 'LOAN_DISBURSED',
+                amount: amount,
+                note: `Loan disbursed to ${name} (${truck})`,
+                refId: loanId
+            });
+
+            if(fee > 0) {
+                appState.cashBook.push({
+                    id: 'CB_' + Date.now() + '_2',
+                    date: startDate,
+                    type: 'IN',
+                    category: 'PROCESSING_FEE',
+                    amount: fee,
+                    note: `Processing fee from ${name}`,
+                    refId: loanId
+                });
+            }
+
+            closeModal('modal-new-loan');
+            document.getElementById('form-new-loan').reset();
+            renderAll();
+            showToast('New loan successfully issued to ' + name);
+        }
+
+        function calcNewLoanPreview() {
+            const amount = parseFloat(document.getElementById('nl-amount').value || 0);
+            const fee = parseFloat(document.getElementById('nl-fee').value || 0);
+            const rate = appState.settings.interestRate || 5;
+            const weeks = appState.settings.weeks || 8;
+
+            const interest = amount * (rate / 100);
+            const totalRepayment = amount + interest;
+            const weeklyPayment = weeks > 0 ? totalRepayment / weeks : 0;
+            const netDisbursed = amount - fee;
+
+            document.getElementById('nl-preview-rate').innerText = `${rate}% Flat (${weeks} Weeks)`;
+            document.getElementById('nl-preview-total').innerText = formatUGX(totalRepayment);
+            document.getElementById('nl-preview-weekly').innerText = formatUGX(weeklyPayment) + ' / wk';
+            document.getElementById('nl-preview-disbursed').innerText = formatUGX(netDisbursed);
+        }
+
+        // MIGRATED EXISTING LOAN
+        function handleMigratedLoan(e) {
+            e.preventDefault();
+            const name = document.getElementById('ml-name').value.trim();
+            const phone = document.getElementById('ml-phone').value.trim();
+            const truck = document.getElementById('ml-truck').value.trim();
+            const balance = parseFloat(document.getElementById('ml-balance').value);
+            const startDate = document.getElementById('ml-startdate').value;
+            const endDate = document.getElementById('ml-enddate').value;
+            let weekly = parseFloat(document.getElementById('ml-weekly').value);
+
+            if(!name || isNaN(balance) || balance <= 0 || !startDate || !endDate) return;
+
+            if(isNaN(weekly) || weekly <= 0) {
+                weekly = balance / (appState.settings.weeks || 8);
+            }
+
+            const loanId = 'LOAN_MIG_' + Date.now();
+
+            const migratedLoan = {
+                id: loanId,
+                type: 'MIGRATED',
+                clientName: name,
+                phone: phone,
+                truckNumber: truck,
+                amount: balance,
+                processingFee: 0,
+                interestRate: 0,
+                weeks: appState.settings.weeks || 8,
+                totalRepayment: balance,
+                weeklyPayment: weekly,
+                startDate: startDate,
+                endDate: endDate,
+                balance: balance,
+                completed: false,
+                payments: []
+            };
+
+            appState.loans.push(migratedLoan);
+
+            closeModal('modal-migrated-loan');
+            document.getElementById('form-migrated-loan').reset();
+            renderAll();
+            showToast('Migrated existing loan for ' + name);
+        }
+
+        // RECORD PAYMENT
+        function openRecordPaymentModal(loanId) {
+            const loan = appState.loans.find(l => l.id === loanId);
+            if(!loan) return;
+
+            document.getElementById('pay-loan-id').value = loan.id;
+            document.getElementById('pay-modal-client-name').innerText = `Client: ${loan.clientName} (${loan.truckNumber || 'No Truck'})`;
+            document.getElementById('pay-modal-balance').innerText = formatUGX(loan.balance);
+            document.getElementById('pay-modal-weekly').innerText = formatUGX(loan.weeklyPayment);
+            document.getElementById('pay-amount').value = Math.min(loan.weeklyPayment, loan.balance);
+
+            openModal('modal-record-payment');
+        }
+
+        function handleRecordPayment(e) {
+            e.preventDefault();
+            const loanId = document.getElementById('pay-loan-id').value;
+            const amount = parseFloat(document.getElementById('pay-amount').value);
+            const date = document.getElementById('pay-date').value;
+            const note = document.getElementById('pay-note').value.trim();
+
+            const loan = appState.loans.find(l => l.id === loanId);
+            if(!loan || isNaN(amount) || amount <= 0 || !date) return;
+
+            const paymentId = 'PAY_' + Date.now();
+
+            loan.payments.push({
+                id: paymentId,
+                date: date,
+                amount: amount,
+                note: note
+            });
+
+            loan.balance = Math.max(0, loan.balance - amount);
+            if(loan.balance === 0) {
+                loan.completed = true;
+            }
+
+            appState.cashBook.push({
+                id: 'CB_PAY_' + Date.now(),
+                date: date,
+                type: 'IN',
+                category: 'REPAYMENT',
+                amount: amount,
+                note: `Repayment from ${loan.clientName} ${note ? '('+note+')' : ''}`,
+                refId: paymentId
+            });
+
+            closeModal('modal-record-payment');
+            closeModal('modal-loan-details');
+            document.getElementById('form-record-payment').reset();
+            renderAll();
+            showToast(`Payment of ${formatUGX(amount)} recorded for ${loan.clientName}`);
+        }
+
+        // LOAN DETAILS MODAL
+        function openLoanDetails(loanId) {
+            const loan = appState.loans.find(l => l.id === loanId);
+            if(!loan) return;
+
+            document.getElementById('det-client-name').innerText = loan.clientName;
+            document.getElementById('det-client-sub').innerText = `Phone: ${loan.phone || 'N/A'} | Truck: ${loan.truckNumber || 'N/A'}`;
+            document.getElementById('det-total-target').innerText = formatUGX(loan.totalRepayment);
+            
+            const totalPaid = (loan.payments || []).reduce((sum, p) => sum + Number(p.amount), 0);
+            document.getElementById('det-total-paid').innerText = formatUGX(totalPaid);
+            document.getElementById('det-balance').innerText = formatUGX(loan.balance);
+
+            const scheduleGrid = document.getElementById('det-schedule-grid');
+            const weeks = loan.weeks || 8;
+            const weeklyDue = loan.weeklyPayment;
+
+            let cycleHTML = '';
+            for(let i = 1; i <= weeks; i++) {
+                const targetCumulative = weeklyDue * i;
+                const cycleDueDate = addDays(loan.startDate, i * 7);
+
+                let cycleStatus = 'PENDING';
+                const today = getTodayStr();
+
+                if(totalPaid >= targetCumulative) {
+                    cycleStatus = 'PAID';
+                } else if(totalPaid > (weeklyDue * (i-1))) {
+                    cycleStatus = 'PARTIAL';
+                } else if(today > cycleDueDate) {
+                    cycleStatus = 'OVERDUE';
+                }
+
+                let badgeColor = 'bg-navy-900 border-navy-700 text-slate-400';
+                if(cycleStatus === 'PAID') badgeColor = 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400';
+                if(cycleStatus === 'PARTIAL') badgeColor = 'bg-gold-500/20 border-gold-500/40 text-gold-400';
+                if(cycleStatus === 'OVERDUE') badgeColor = 'bg-rose-500/20 border-rose-500/40 text-rose-300';
+
+                cycleHTML += `
+                <div class="p-2.5 rounded-xl border ${badgeColor} flex flex-col justify-between text-[11px]">
+                    <div class="flex justify-between font-bold">
+                        <span>Wk ${i}</span>
+                        <span class="text-[9px] uppercase tracking-wider">${cycleStatus}</span>
+                    </div>
+                    <div class="mt-1 text-[10px] opacity-80">Due: ${formatDate(cycleDueDate)}</div>
+                </div>
+                `;
+            }
+            scheduleGrid.innerHTML = cycleHTML;
+
+            const historyContainer = document.getElementById('det-payment-history');
+            if(!loan.payments || loan.payments.length === 0) {
+                historyContainer.innerHTML = '<p class="text-slate-500 text-center py-2">No payments received yet.</p>';
+            } else {
+                historyContainer.innerHTML = loan.payments.slice().reverse().map(p => `
+                    <div class="bg-navy-950 p-2.5 rounded-xl border border-navy-700 flex justify-between items-center">
+                        <div>
+                            <span class="font-bold text-emerald-400 text-xs">+${formatUGX(p.amount)}</span>
+                            <span class="text-[10px] text-slate-400 block">${formatDate(p.date)} ${p.note ? '• ' + escapeHtml(p.note) : ''}</span>
+                        </div>
+                        <button onclick="promptDeletePayment('${loan.id}', '${p.id}')" class="text-slate-500 hover:text-rose-400 p-1">
+                            ✕
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            const payBtn = document.getElementById('det-pay-btn');
+            if(loan.completed) {
+                payBtn.style.display = 'none';
+            } else {
+                payBtn.style.display = 'block';
+                payBtn.onclick = function() {
+                    openRecordPaymentModal(loan.id);
+                };
+            }
+
+            document.getElementById('det-delete-btn').onclick = function() {
+                promptDeleteEntry('loan', loan.id);
+            };
+
+            openModal('modal-loan-details');
+        }
+
+        // CAPITAL ACTIONS
+        function openCapitalModal(type) {
+            document.getElementById('cap-type').value = type;
+            document.getElementById('cap-modal-title').innerText = type === 'ADD' ? 'Add Capital Injection' : 'Withdraw Capital';
+            document.getElementById('cap-submit-btn').innerText = type === 'ADD' ? 'Confirm Capital Addition' : 'Confirm Withdrawal';
+            document.getElementById('cap-submit-btn').className = `w-full ${type === 'ADD' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-rose-600 hover:bg-rose-500'} text-white font-bold py-3 rounded-xl shadow-lg transition`;
+            openModal('modal-capital-action');
+        }
+
+        function handleCapitalAction(e) {
+            e.preventDefault();
+            const type = document.getElementById('cap-type').value;
+            const amount = parseFloat(document.getElementById('cap-amount').value);
+            const date = document.getElementById('cap-date').value;
+            const note = document.getElementById('cap-note').value.trim();
+
+            if(isNaN(amount) || amount <= 0 || !date) return;
+
+            const capId = 'CAP_' + Date.now();
+
+            appState.capitalLogs.push({
+                id: capId,
+                type: type,
+                amount: amount,
+                date: date,
+                note: note
+            });
+
+            appState.cashBook.push({
+                id: 'CB_CAP_' + Date.now(),
+                date: date,
+                type: type === 'ADD' ? 'IN' : 'OUT',
+                category: type === 'ADD' ? 'CAPITAL_ADD' : 'CAPITAL_REMOVE',
+                amount: amount,
+                note: `Capital ${type === 'ADD' ? 'Added' : 'Withdrawn'} ${note ? '('+note+')' : ''}`,
+                refId: capId
+            });
+
+            closeModal('modal-capital-action');
+            document.getElementById('form-capital-action').reset();
+            renderAll();
+            showToast(`Capital ${type === 'ADD' ? 'added' : 'withdrawn'}: ${formatUGX(amount)}`);
+        }
+
+        // MANUAL CASH BOOK ENTRY
+        function handleManualCashEntry(e) {
+            e.preventDefault();
+            const type = document.getElementById('ce-type').value;
+            const amount = parseFloat(document.getElementById('ce-amount').value);
+            const desc = document.getElementById('ce-desc').value.trim();
+            const date = document.getElementById('ce-date').value;
+
+            if(isNaN(amount) || amount <= 0 || !desc || !date) return;
+
+            appState.cashBook.push({
+                id: 'CB_MANUAL_' + Date.now(),
+                date: date,
+                type: type,
+                category: 'MANUAL',
+                amount: amount,
+                note: desc
+            });
+
+            closeModal('modal-cash-entry');
+            document.getElementById('form-cash-entry').reset();
+            renderAll();
+            showToast(`Cash Book entry saved (${type})`);
+        }
+
+        /**
+         * DELETION & UNDO ENGINE
+         */
+        function promptDeleteEntry(type, id) {
+            const confirmModal = document.getElementById('modal-confirm');
+            const okBtn = document.getElementById('confirm-ok-btn');
+
+            let title = 'Delete Item?';
+            let msg = 'Are you sure you want to delete this entry? Balances and Cash Book will recalculate automatically.';
+
+            if(type === 'loan') {
+                title = 'Delete Entire Loan?';
+                msg = 'This will delete the client loan and all associated cash book entries and payments.';
+            }
+
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-msg').innerText = msg;
+
+            okBtn.onclick = function() {
+                executeDeletion(type, id);
+                closeModal('modal-confirm');
+            };
+
+            openModal('modal-confirm');
+        }
+
+        function promptDeletePayment(loanId, paymentId) {
+            const confirmModal = document.getElementById('modal-confirm');
+            document.getElementById('confirm-title').innerText = 'Delete Payment Record?';
+            document.getElementById('confirm-msg').innerText = 'Deleting this payment will restore the loan balance and recalculate cash in hand.';
+
+            document.getElementById('confirm-ok-btn').onclick = function() {
+                executeDeletePayment(loanId, paymentId);
+                closeModal('modal-confirm');
+            };
+
+            openModal('modal-confirm');
+        }
+
+        function executeDeletion(type, id) {
+            saveBackupForUndo();
+
+            if(type === 'loan') {
+                appState.loans = appState.loans.filter(l => l.id !== id);
+                appState.cashBook = appState.cashBook.filter(cb => cb.refId !== id);
+                closeModal('modal-loan-details');
+            } else if(type === 'capital') {
+                appState.capitalLogs = appState.capitalLogs.filter(c => c.id !== id);
+                appState.cashBook = appState.cashBook.filter(cb => cb.refId !== id);
+            } else if(type === 'cashbook') {
+                appState.cashBook = appState.cashBook.filter(cb => cb.id !== id);
+            }
+
+            renderAll();
+            showUndoToast('Item deleted successfully.');
+        }
+
+        function executeDeletePayment(loanId, paymentId) {
+            saveBackupForUndo();
+
+            const loan = appState.loans.find(l => l.id === loanId);
+            if(loan) {
+                const pay = loan.payments.find(p => p.id === paymentId);
+                if(pay) {
+                    loan.balance += Number(pay.amount);
+                    loan.completed = false;
+                    loan.payments = loan.payments.filter(p => p.id !== paymentId);
+                    appState.cashBook = appState.cashBook.filter(cb => cb.refId !== paymentId);
+                }
+            }
+
+            closeModal('modal-loan-details');
+            renderAll();
+            showUndoToast('Payment record deleted.');
+        }
+
+        function saveBackupForUndo() {
+            lastDeletedItem = JSON.parse(JSON.stringify(appState));
+        }
+
+        function undoLastDelete() {
+            if(lastDeletedItem) {
+                appState = JSON.parse(JSON.stringify(lastDeletedItem));
+                lastDeletedItem = null;
+                renderAll();
+                showToast('Action undone successfully! Data restored.');
+            }
+        }
+
+        function showUndoToast(msg) {
+            const container = document.getElementById('toast-container');
+            container.innerHTML = `
+                <div class="bg-navy-950 text-white border border-gold-500/50 px-4 py-3 rounded-2xl shadow-2xl flex items-center justify-between space-x-4 pointer-events-auto max-w-sm w-full animate-bounce">
+                    <span class="text-xs font-medium">${escapeHtml(msg)}</span>
+                    <button onclick="undoLastDelete()" class="bg-gold-500 text-navy-950 px-3 py-1 rounded-xl text-xs font-bold hover:bg-gold-400">
+                        Undo
+                    </button>
+                </div>
+            `;
+
+            if(undoTimer) clearTimeout(undoTimer);
+            undoTimer = setTimeout(() => {
+                container.innerHTML = '';
+                lastDeletedItem = null;
+            }, 6000);
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            container.innerHTML = `
+                <div class="bg-navy-800 text-white border border-navy-700 px-4 py-2.5 rounded-xl shadow-lg text-xs font-medium pointer-events-auto">
+                    ${escapeHtml(msg)}
+                </div>
+            `;
+            setTimeout(() => { container.innerHTML = ''; }, 3000);
+        }
+
+        /**
+         * SETTINGS & BACKUP ENGINE
+         */
+        function openSettingsModal() {
+            document.getElementById('set-rate').value = appState.settings.interestRate || 5;
+            document.getElementById('set-weeks').value = appState.settings.weeks || 8;
+            openModal('modal-settings');
+        }
+
+        function handleSaveSettings(e) {
+            e.preventDefault();
+            const rate = parseFloat(document.getElementById('set-rate').value);
+            const weeks = parseInt(document.getElementById('set-weeks').value);
+
+            if(!isNaN(rate)) appState.settings.interestRate = rate;
+            if(!isNaN(weeks)) appState.settings.weeks = weeks;
+
+            closeModal('modal-settings');
+            renderAll();
+            showToast('Default loan settings updated.');
+        }
+
+        function exportJSONBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const downloadAnchor = document.createElement('a');
+            const fileName = `LendBook_Backup_${getTodayStr()}.json`;
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", fileName);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast('Backup JSON downloaded');
+        }
+
+        function importJSONBackup(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const imported = JSON.parse(evt.target.result);
+                    if(imported && typeof imported === 'object') {
+                        appState = imported;
+                        renderAll();
+                        closeModal('modal-settings');
+                        showToast('Backup JSON imported successfully!');
+                    } else {
+                        alert('Invalid JSON structure.');
+                    }
+                } catch(err) {
+                    alert('Error reading JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function confirmResetAllData() {
+            if(confirm('DANGER: This will wipe all clients, loans, cash book entries and capital history. Continue?')) {
+                appState = {
+                    settings: { interestRate: 5, weeks: 8 },
+                    capitalLogs: [],
+                    loans: [],
+                    cashBook: []
+                };
+                renderAll();
+                closeModal('modal-settings');
+                showToast('All app data has been reset.');
+            }
+        }
+
+        function escapeHtml(str) {
+            if(!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Attach modal and action handlers globally to guarantee window access
+        window.openSettingsModal = openSettingsModal;
+        window.openRecordPaymentModal = openRecordPaymentModal;
+        window.openLoanDetails = openLoanDetails;
+        window.openCapitalModal = openCapitalModal;
+        window.handleNewLoan = handleNewLoan;
+        window.calcNewLoanPreview = calcNewLoanPreview;
+        window.handleMigratedLoan = handleMigratedLoan;
+        window.handleRecordPayment = handleRecordPayment;
+        window.handleCapitalAction = handleCapitalAction;
+        window.handleManualCashEntry = handleManualCashEntry;
+        window.promptDeleteEntry = promptDeleteEntry;
+        window.promptDeletePayment = promptDeletePayment;
+        window.undoLastDelete = undoLastDelete;
+        window.handleSaveSettings = handleSaveSettings;
+        window.exportJSONBackup = exportJSONBackup;
+        window.importJSONBackup = importJSONBackup;
+        window.confirmResetAllData = confirmResetAllData;
+        window.setPaymentSubTab = setPaymentSubTab;
+        window.renderCashBook = renderCashBook;
+        window.renderClients = renderClients;
+    </script>
+</body>
+</html>
